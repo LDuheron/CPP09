@@ -14,13 +14,13 @@
 
 // Constructor -----------------------------------------------------------------
 
-BitcoinExchange::BitcoinExchange() : _database()
+BitcoinExchange::BitcoinExchange() : _database() // _configFile()
 {
 	if (DEBUG)
 		std::cout << "Default constructor called.\n";
 }
 
-BitcoinExchange::BitcoinExchange(BitcoinExchange const & src) : _database(src._database)
+BitcoinExchange::BitcoinExchange(BitcoinExchange const & src) : _database(src._database)// _configFile(src._configFile) //
 {
 	if (DEBUG)
 		std::cout << "Copy constructor called.\n";
@@ -36,15 +36,16 @@ BitcoinExchange::~BitcoinExchange()
 
 // Accessors -------------------------------------------------------------------
 
-map_t const &	BitcoinExchange::getDatabase(void) const
-{
-	return (this->_database);
-}
+// map_t const &	BitcoinExchange::getDatabase(void) const
+// {
+// 	return (this->_database);
+// }
 
 // Overload --------------------------------------------------------------------
 
 BitcoinExchange &	BitcoinExchange::operator=(BitcoinExchange const & rhs)
 {
+	// this->_database = rhs._database;
 	this->_database = rhs._database;
 	return *this;
 }
@@ -55,10 +56,77 @@ BitcoinExchange &	BitcoinExchange::operator=(BitcoinExchange const & rhs)
 // 	return lhs;
 // }
 
+// Exception -------------------------------------------------------------------
+
+const char* BitcoinExchange::FileOpeningException::what() const throw()
+{
+	return ("can't open file.\n");
+}
+
+const char* BitcoinExchange::WrongDateFormatException::what() const throw()
+{
+	return ("date format is Year-Month-Day.\n");
+}
+
 // Functions -------------------------------------------------------------------
+
+void	BitcoinExchange::checkDate(std::string line)
+{
+	int	Year = atoi(line.substr(0,4).c_str());
+	int	Month = atoi(line.substr(5,2).c_str());
+	int	Day = atoi(line.substr(8,2).c_str());
+	if (Month < 1 || Month > 12)
+	if (Day < 1|| Day > 31)
+	// annee bissextiles + fevrier
+	std::cout << "Year " << Year << " month " << Month << " Day " << Day << "\n";
+}
+
+void	BitcoinExchange::checkFormat(std::string line)
+{
+	// if (line.size() < 14)
+	// 	throw ();
+
+	std::string date = line.substr(0, 10);
+	std::cout << date << std::endl;
+	for (int i = 0; i < 10; i++)
+	{
+		if (i == 4 || i == 7)
+		{
+			if (line[i] != '-')
+				throw(WrongDateFormatException());
+		}
+		else
+		{
+			if (isdigit(line[i]) == 0)
+				throw(WrongDateFormatException());
+		}
+	}
+	std::string value = line.substr(10);
+}
+
+void	BitcoinExchange::checkInput(std::string line)
+{
+	checkFormat(line); // - etc chiffre, points
+	checkDate(line);
+}
 
 void	BitcoinExchange::getInput(char *input)
 {
-	
-}
+	std::ifstream infile(input);
+	if (!infile.is_open() || infile.fail())
+		throw(FileOpeningException());
 
+	std::string line;
+	while (std::getline(infile, line))
+	{
+		try
+		{
+			checkInput(line);
+		}
+		catch(const std::exception& e)
+		{
+			std::cerr << "Error: " << e.what() << '\n';
+		}
+	}
+	infile.close();
+}

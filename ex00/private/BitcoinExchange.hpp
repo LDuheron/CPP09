@@ -13,34 +13,52 @@
 #ifndef BITCOINEXCHANGE_HPP
 # define BITCOINEXCHANGE_HPP
 
+# include <cstdlib>
+# include <fstream>
 # include <iostream>
 # include <list>
 # include <map>
 # include <string>
+# include <vector>
+# include <utility>
 
 #define SUCCESS 0
 #define ERROR 1
 
 #define DEBUG 0
 
-typedef std::map<int, std::string> map_t;
+typedef std::map<std::string, double> map_t;
 
 class BitcoinExchange
 {
 	private:
-		std::map<int, std::string>	_database;
-		// std::list<std::string> _database;
+		map_t	_database;
 
 	public:
 		BitcoinExchange();
 		BitcoinExchange(BitcoinExchange const & src);
 		~BitcoinExchange();
 
+		class FileOpeningException : public std::exception 
+		{
+			public:
+				virtual const char* what() const throw();
+		};
+		
+		class WrongDateFormatException : public std::exception 
+		{
+			public:
+				virtual const char* what() const throw();
+		};
+
 		void	getInput(char *input);
+
+		void	checkDate(std::string line);
+		void	checkFormat(std::string line);
+		void	checkInput(std::string line);
 
 		BitcoinExchange &	operator=(BitcoinExchange const & rhs);
 
-		map_t const &getDatabase(void) const;
 };
 
 std::ostream & operator<<(std::ostream & lhs, BitcoinExchange const & rhs);
