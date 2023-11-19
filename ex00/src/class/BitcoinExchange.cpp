@@ -60,34 +60,36 @@ BitcoinExchange &	BitcoinExchange::operator=(BitcoinExchange const & rhs)
 
 const char* BitcoinExchange::FileOpeningException::what() const throw()
 {
-	return ("can't open file.\n");
+	return ("can't open file.");
 }
 
 const char* BitcoinExchange::WrongDateFormatException::what() const throw()
 {
-	return ("date format is Year-Month-Day.\n");
+	return ("date format is Year-Month-Day.");
 }
 
 // Functions -------------------------------------------------------------------
 
 void	BitcoinExchange::checkDate(std::string line)
 {
+	bool isLeapYear = FALSE;
 	int	Year = atoi(line.substr(0,4).c_str());
+	if ((Year % 4) == 0)
+		isLeapYear = TRUE;
 	int	Month = atoi(line.substr(5,2).c_str());
 	int	Day = atoi(line.substr(8,2).c_str());
-	if (Month < 1 || Month > 12)
-	if (Day < 1|| Day > 31)
-	// annee bissextiles + fevrier
-	std::cout << "Year " << Year << " month " << Month << " Day " << Day << "\n";
+	if ((Month < 1 || Month > 12) || (Day < 1 || Day > 31))
+		throw (WrongDateFormatException());
+	if (Month == FEBRUARY && ((isLeapYear && Day > 29) || (!isLeapYear && Day > 28)))
+		throw (WrongDateFormatException());
+	if (Day > 30 && (Month == APRIL || Month == JUNE || Month == SEPTEMBER || Month == NOVEMBER))
+		throw (WrongDateFormatException());
+	// std::cout << "Year " << Year << " month " << Month << " Day " << Day << "\n";
 }
 
 void	BitcoinExchange::checkFormat(std::string line)
 {
-	// if (line.size() < 14)
-	// 	throw ();
-
 	std::string date = line.substr(0, 10);
-	std::cout << date << std::endl;
 	for (int i = 0; i < 10; i++)
 	{
 		if (i == 4 || i == 7)

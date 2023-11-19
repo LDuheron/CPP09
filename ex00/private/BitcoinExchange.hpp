@@ -25,6 +25,15 @@
 #define SUCCESS 0
 #define ERROR 1
 
+#define FALSE 0
+#define TRUE 1
+
+#define FEBRUARY 2
+#define APRIL 4
+#define JUNE 6
+#define SEPTEMBER 9
+#define NOVEMBER 11
+
 #define DEBUG 0
 
 typedef std::map<std::string, double> map_t;
