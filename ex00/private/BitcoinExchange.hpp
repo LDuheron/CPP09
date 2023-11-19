@@ -22,6 +22,19 @@
 # include <vector>
 # include <utility>
 
+# include <climits>
+# include <cfloat>
+# include <iostream>
+# include <sstream>
+# include <stdio.h> 
+# include <stdlib.h> 
+# include <string>
+# include <cstring>
+#include <iostream>
+#include <fstream>
+#include <limits>
+#include <iomanip>
+
 #define SUCCESS 0
 #define ERROR 1
 
@@ -48,28 +61,46 @@ class BitcoinExchange
 		BitcoinExchange(BitcoinExchange const & src);
 		~BitcoinExchange();
 
-		class FileOpeningException : public std::exception 
-		{
-			public:
-				virtual const char* what() const throw();
-		};
-		
-		class WrongDateFormatException : public std::exception 
-		{
-			public:
-				virtual const char* what() const throw();
-		};
-
 		void	getInput(char *input);
 
 		void	checkDate(std::string line);
 		void	checkFormat(std::string line);
-		void	checkInput(std::string line);
+		void	checkValue(std::string line);
 
 		BitcoinExchange &	operator=(BitcoinExchange const & rhs);
 
 };
 
 std::ostream & operator<<(std::ostream & lhs, BitcoinExchange const & rhs);
+
+class FileOpeningException : public std::exception 
+{
+	public:
+		virtual const char* what() const throw();
+};
+		
+class ParseFailException : public std::exception 
+{
+	public:
+		virtual const char* what() const throw();
+};
+
+class WrongDateFormatException : public std::exception 
+{
+	public:
+		virtual const char* what() const throw();
+};
+
+class WrongFormatException : public std::exception 
+{
+	public:
+		virtual const char* what() const throw();
+};
+
+class WrongValueFormatException : public std::exception 
+{
+	public:
+		virtual const char* what() const throw();
+};
 
 #endif

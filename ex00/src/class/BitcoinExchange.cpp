@@ -58,14 +58,29 @@ BitcoinExchange &	BitcoinExchange::operator=(BitcoinExchange const & rhs)
 
 // Exception -------------------------------------------------------------------
 
-const char* BitcoinExchange::FileOpeningException::what() const throw()
+const char* FileOpeningException::what() const throw()
 {
 	return ("can't open file.");
 }
 
-const char* BitcoinExchange::WrongDateFormatException::what() const throw()
+const char* WrongDateFormatException::what() const throw()
 {
-	return ("date format is Year-Month-Day.");
+	return ("format is Year-Month-Day.");
+}
+
+const char* WrongFormatException::what() const throw()
+{
+	return ("format is data | value.");
+}
+
+const char* WrongValueFormatException::what() const throw()
+{
+	return ("value must be either a float or a positive integer, between 0 and 1000.");
+}
+
+const char* ParseFailException::what() const throw()
+{
+	return ("Isstream failed to parse.\n");
 }
 
 // Functions -------------------------------------------------------------------
@@ -84,33 +99,83 @@ void	BitcoinExchange::checkDate(std::string line)
 		throw (WrongDateFormatException());
 	if (Day > 30 && (Month == APRIL || Month == JUNE || Month == SEPTEMBER || Month == NOVEMBER))
 		throw (WrongDateFormatException());
-	// std::cout << "Year " << Year << " month " << Month << " Day " << Day << "\n";
 }
 
 void	BitcoinExchange::checkFormat(std::string line)
 {
 	std::string date = line.substr(0, 10);
-	for (int i = 0; i < 10; i++)
+
+	for (int i = 0; i < 13; i++)
 	{
 		if (i == 4 || i == 7)
 		{
 			if (line[i] != '-')
 				throw(WrongDateFormatException());
 		}
+		else if (i == 10 || i == 12)
+		{
+			if (line[i] != ' ')
+				throw(WrongFormatException());
+		}
+		else if (i == 11)
+		{
+			if (line[i] != '|')
+				throw(WrongFormatException());
+		}
 		else
 		{
-			if (isdigit(line[i]) == 0)
+			if (!isdigit(line[i]))
 				throw(WrongDateFormatException());
 		}
 	}
 	std::string value = line.substr(10);
 }
 
-void	BitcoinExchange::checkInput(std::string line)
+void	BitcoinExchange::checkValue(std::string line)
 {
-	checkFormat(line); // - etc chiffre, points
-	checkDate(line);
-}
+	int nbPositiveSign = 0;
+	for (int i = 13; i < (int)line.size(); i++)
+	{
+		if (line[i] == '+')
+			nbPositiveSign += 1;
+		else
+			break;
+	}
+
+	std::string value = line.substr(13 + nbPositiveSign, line.size());
+	int cptDot = 0;
+	for (int i = 0; i < (int)value.size(); i++)
+	{
+		if (value[i] == '.')
+		{
+			cptDot += 1;
+			if (cptDot > 1 || i > 4)
+				throw(WrongValueFormatException());
+		}
+		else if (!isdigit(value[i]))
+			throw(WrongValueFormatException());
+	}
+	if (cptDot == 0 && value.size() > 4)
+		throw(WrongValueFormatException());
+
+	std::istringstream	iss(value);
+	char	*valueNbr = new char[value.length() + 1];
+	std::strcpy(valueNbr, value.c_str());
+	if (iss >> valueNbr)
+	{
+		if (atoi(valueNbr) < 0 || atoi(valueNbr) > 1000)
+		{
+			delete[]valueNbr;
+			throw(WrongValueFormatException());
+		}
+	}
+	else
+	{
+		delete[] valueNbr;
+		throw(ParseFailException());
+	}
+	delete[] valueNbr;
+}	
 
 void	BitcoinExchange::getInput(char *input)
 {
@@ -123,7 +188,10 @@ void	BitcoinExchange::getInput(char *input)
 	{
 		try
 		{
-			checkInput(line);
+			checkFormat(line);
+			checkDate(line);
+			checkValue(line);
+			std::cout << "All good bro !\n";
 		}
 		catch(const std::exception& e)
 		{
