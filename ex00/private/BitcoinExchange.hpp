@@ -14,26 +14,17 @@
 # define BITCOINEXCHANGE_HPP
 
 # include <cstdlib>
+# include <cstring>
 # include <fstream>
 # include <iostream>
 # include <list>
 # include <map>
 # include <string>
+# include <sstream>
 # include <vector>
 # include <utility>
 
-# include <climits>
-# include <cfloat>
-# include <iostream>
-# include <sstream>
-# include <stdio.h> 
-# include <stdlib.h> 
-# include <string>
-# include <cstring>
-#include <iostream>
-#include <fstream>
-#include <limits>
-#include <iomanip>
+ #include <cstdlib>
 
 #define SUCCESS 0
 #define ERROR 1
@@ -49,6 +40,8 @@
 
 #define DEBUG 0
 
+/// irc = mapde commande 
+
 typedef std::map<std::string, double> map_t;
 
 class BitcoinExchange
@@ -63,9 +56,13 @@ class BitcoinExchange
 
 		void	getInput(char *input);
 
+		void	getDatabase(void);
+
 		void	checkDate(std::string line);
 		void	checkFormat(std::string line);
 		void	checkValue(std::string line);
+		void	printValue(std::string line);
+
 
 		BitcoinExchange &	operator=(BitcoinExchange const & rhs);
 

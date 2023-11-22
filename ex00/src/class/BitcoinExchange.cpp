@@ -14,13 +14,13 @@
 
 // Constructor -----------------------------------------------------------------
 
-BitcoinExchange::BitcoinExchange() : _database() // _configFile()
+BitcoinExchange::BitcoinExchange() : _database()
 {
 	if (DEBUG)
 		std::cout << "Default constructor called.\n";
 }
 
-BitcoinExchange::BitcoinExchange(BitcoinExchange const & src) : _database(src._database)// _configFile(src._configFile) //
+BitcoinExchange::BitcoinExchange(BitcoinExchange const & src) : _database(src._database)
 {
 	if (DEBUG)
 		std::cout << "Copy constructor called.\n";
@@ -36,25 +36,13 @@ BitcoinExchange::~BitcoinExchange()
 
 // Accessors -------------------------------------------------------------------
 
-// map_t const &	BitcoinExchange::getDatabase(void) const
-// {
-// 	return (this->_database);
-// }
-
 // Overload --------------------------------------------------------------------
 
 BitcoinExchange &	BitcoinExchange::operator=(BitcoinExchange const & rhs)
 {
-	// this->_database = rhs._database;
 	this->_database = rhs._database;
 	return *this;
 }
-
-// std::ostream & operator<<(std::ostream & lhs, BitcoinExchange const & rhs)
-// {
-// 	lhs << rhs.getDatabase() << ".\n";
-// 	return lhs;
-// }
 
 // Exception -------------------------------------------------------------------
 
@@ -85,11 +73,41 @@ const char* ParseFailException::what() const throw()
 
 // Functions -------------------------------------------------------------------
 
+void	BitcoinExchange::getDatabase(void)
+{
+	std::ifstream infile("data.csv");
+	if (!infile.is_open() || infile.fail())
+		throw(FileOpeningException());
+
+	std::string line;
+	while (std::getline(infile, line))
+	{
+		std::string date = line.substr(0, 10);
+		std::string valueStr = line.substr(11, (int)line.size());
+
+		std::istringstream	iss(valueStr);
+		char	*valueNbr = new char[valueStr.length() + 1];
+		std::strcpy(valueNbr, valueStr.c_str());
+		if (iss >> valueNbr)
+		{
+			double valueDouble = atof(valueNbr);
+			this->_database.insert(std::make_pair(date, valueDouble));
+			delete[]valueNbr;
+		}
+		else
+		{
+			delete[] valueNbr;
+			throw(ParseFailException());
+		}
+	}
+	infile.close();
+}
+
 void	BitcoinExchange::checkDate(std::string line)
 {
 	bool isLeapYear = FALSE;
 	int	Year = atoi(line.substr(0,4).c_str());
-	if ((Year % 4) == 0)
+	if ((Year % 4 == 0 && Year % 100 != 0) || (Year % 400 == 0))
 		isLeapYear = TRUE;
 	int	Month = atoi(line.substr(5,2).c_str());
 	int	Day = atoi(line.substr(8,2).c_str());
@@ -130,6 +148,8 @@ void	BitcoinExchange::checkFormat(std::string line)
 	}
 	std::string value = line.substr(10);
 }
+
+//// CALCUL ANNEES BISSEXTILES FAUX
 
 void	BitcoinExchange::checkValue(std::string line)
 {
@@ -191,7 +211,7 @@ void	BitcoinExchange::getInput(char *input)
 			checkFormat(line);
 			checkDate(line);
 			checkValue(line);
-			std::cout << "All good bro !\n";
+			printValue(line);
 		}
 		catch(const std::exception& e)
 		{
@@ -199,4 +219,27 @@ void	BitcoinExchange::getInput(char *input)
 		}
 	}
 	infile.close();
+}
+
+void	BitcoinExchange::printValue(std::string line)
+{
+	std::string date = line.substr(0, 10);
+	double amountBitcoin = atof(line.substr(13).c_str());
+	map_t::const_iterator	it = this->_database.begin();
+	map_t::const_iterator	end = this->_database.end();
+	while (it != end)
+	{
+		if (it->first == line.substr(0, 10))
+		{
+			std::cout << "ab " << amountBitcoin << " it " << it->second << "result " << (amountBitcoin * it->second) << "\n";
+			std::cout << date << " => " << amountBitcoin << " = " << (amountBitcoin * it->second) << "\n";
+			break;
+		}
+		else if ((it->first).c_str() - line.substr(0, 10).c_str() > 0)
+		{
+			std::cout << date << " => " << amountBitcoin << " = " << (amountBitcoin * it->second) << "\n";
+			break;
+		}
+		it++;
+	}
 }

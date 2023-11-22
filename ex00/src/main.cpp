@@ -6,7 +6,7 @@
 /*   By: lduheron <lduheron@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/17 11:24:53 by lduheron          #+#    #+#             */
-/*   Updated: 2023/11/17 17:06:21 by lduheron         ###   ########.fr       */
+/*   Updated: 2023/11/22 15:21:53 by lduheron         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,7 +24,9 @@ int main(int argc, char **argv)
 
 	try
 	{
+		btc.getDatabase();
 		btc.getInput(argv[1]);
+		
 	}
 	catch(const std::exception& e)
 	{
