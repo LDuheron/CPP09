@@ -17,12 +17,28 @@
 # include <string>
 # include <stack>
 
-// penser aux overflowSSSS
-
 #define SUCCESS 0
 #define ERROR 1
 
 # define DEBUG 0
+
+class DivisionByZeroException : public std::exception 
+{
+	public:
+		virtual const char* what() const throw();
+};
+
+class TooMuchNumbersException : public std::exception 
+{
+	public:
+		virtual const char* what() const throw();
+};
+
+class NotEnoughNumbersException : public std::exception 
+{
+	public:
+		virtual const char* what() const throw();
+};
 
 class WrongInputException : public std::exception 
 {
@@ -33,6 +49,7 @@ class WrongInputException : public std::exception
 class RPN
 {
 	private:
+		int				_result;
 		std::stack<int> _stack;
 
 	public:
@@ -40,16 +57,15 @@ class RPN
 		RPN(RPN const & src);
 		~RPN();
 
-		// RPN &	operator=(RPN const & rhs);
-	
-		// std::string const 		&getName(void) const;
+		RPN &					operator=(RPN const & rhs);
 
+		int const				&getResult(void) const;
+
+		void					doOperation(char op, int firstNB, int secondNb);
 		bool					isOperator(char c);
 		void					parseInput(std::string input);
-
+		void					readAndCalculate(std::string input);
 
 };
-
-// std::ostream & operator<<(std::ostream & lhs, RPN const & rhs);
 
 #endif
