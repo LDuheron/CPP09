@@ -69,6 +69,14 @@ bool	RPN::isOperator(char c)
 	return (false);
 }
 
+// void	RPN::readAndCalculate(std::string input)
+// {
+// 	for (int i = 0; i < (int)input.size(); i++)
+// 	{
+// 		if (i = )
+// 	}
+// }
+
 void	RPN::parseInput(std::string input)
 {
 	for (int i = 0; i < (int)input.size(); i++)
@@ -76,6 +84,10 @@ void	RPN::parseInput(std::string input)
 		if (isdigit(input[i]) == 0 && isOperator(input[i]) == false && input[i] != ' ')
 			throw(WrongInputException());
 		if (isdigit(input[i]) != 0 && isdigit(input[i + 1]) != 0 && isdigit(input[i + 2]) != 0)
+			throw(WrongInputException());
+		if (isOperator(input[i]) && input[i + 1] && input[i + 1] != ' ')
+			throw(WrongInputException());
+		if (isdigit(input[i]) != 0 && input [i + 1] && !(isdigit(input[i + 1]) != 0 || input[i + 1] == ' '))
 			throw(WrongInputException());
 	}
 }
