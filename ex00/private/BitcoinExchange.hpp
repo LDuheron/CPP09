@@ -63,12 +63,17 @@ class BitcoinExchange
 		void	checkValue(std::string line);
 		void	printValue(std::string line);
 
-
 		BitcoinExchange &	operator=(BitcoinExchange const & rhs);
 
 };
 
 std::ostream & operator<<(std::ostream & lhs, BitcoinExchange const & rhs);
+
+class ErrorException : public std::exception 
+{
+	public:
+		virtual const char* what() const throw();
+};
 
 class FileOpeningException : public std::exception 
 {

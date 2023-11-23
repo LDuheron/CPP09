@@ -46,6 +46,11 @@ BitcoinExchange &	BitcoinExchange::operator=(BitcoinExchange const & rhs)
 
 // Exception -------------------------------------------------------------------
 
+const char* ErrorException::what() const throw()
+{
+	return ("error.");
+}
+
 const char* FileOpeningException::what() const throw()
 {
 	return ("can't open file.");
@@ -149,8 +154,6 @@ void	BitcoinExchange::checkFormat(std::string line)
 	std::string value = line.substr(10);
 }
 
-//// CALCUL ANNEES BISSEXTILES FAUX
-
 void	BitcoinExchange::checkValue(std::string line)
 {
 	int nbPositiveSign = 0;
@@ -225,21 +228,14 @@ void	BitcoinExchange::printValue(std::string line)
 {
 	std::string date = line.substr(0, 10);
 	double amountBitcoin = atof(line.substr(13).c_str());
-	map_t::const_iterator	it = this->_database.begin();
+	map_t::const_iterator	it = this->_database.find(date);
 	map_t::const_iterator	end = this->_database.end();
-	while (it != end)
+	if (it == end)
 	{
-		if (it->first == line.substr(0, 10))
-		{
-			std::cout << "ab " << amountBitcoin << " it " << it->second << "result " << (amountBitcoin * it->second) << "\n";
-			std::cout << date << " => " << amountBitcoin << " = " << (amountBitcoin * it->second) << "\n";
-			break;
-		}
-		else if ((it->first).c_str() - line.substr(0, 10).c_str() > 0)
-		{
-			std::cout << date << " => " << amountBitcoin << " = " << (amountBitcoin * it->second) << "\n";
-			break;
-		}
-		it++;
+		it = this->_database.upper_bound(date);
+		if (it == this->_database.begin())
+			throw(ErrorException());
+		it--;
 	}
+	std::cout << date << " => " << amountBitcoin << " = " << (amountBitcoin * it->second) << "\n";
 }
